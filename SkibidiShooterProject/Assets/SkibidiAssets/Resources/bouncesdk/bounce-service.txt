@@ -1,0 +1,31 @@
+ appToken = 8t1h
+freeAds = false
+
+admobAppId = 
+admobBanner = 
+admobInterstitial = 
+admobRewarded = 
+admobAppIdIos = 
+admobBannerIos = 
+admobInterstitialIos = 
+admobRewardedIos = 
+
+maxSdkKey = 2BGZUhNOmcsTANp_ibeSwZ7Z1tyN8fNfXuLcue62zKVyHuUWP7UL46e-wilmV_wqascpTL8m4E8H7xMfwqtABN
+maxBannerBottom = 25acbb5f0e93ff2a
+maxBannerTop = 
+maxInterstitial = 781af0fb08d7e146
+maxRewarded = f5a75a88b324f97f 
+maxAppOpen = 623cb650536fc2fe
+maxBannerBottomIos = 
+maxBannerTopIos = 
+maxInterstitialIos = 
+maxRewardedIos = 
+maxAppOpenIos = 
+
+ironKey = 
+
+adjustAppToken = i196rmtbgc1s
+adjustEventShowInterstitial = pt946m
+adjustEventShowRewarded = q7rf4w
+adjustEventCompleteRewarded = w53jzm
+adjustEventTokenIAP = 43a0ue
