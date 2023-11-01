@@ -3,16 +3,24 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Gun
+  - Props
+  - Enemy
+  - Amotext
+  - CrossHair
+  - Bot
+  - SpawnPosition
+  - Weapon
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - hit
   - Water
   - UI
-  - 
-  - 
+  - Ground
+  - enemy
   - 
   - 
   - 
