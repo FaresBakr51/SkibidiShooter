@@ -217,18 +217,18 @@ namespace Controller
         #endregion
 
         #region Inputs
-        //private bool IsPointerOverUIObject()
-        //{
-        //    PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-        //    eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        //    List<RaycastResult> results = new List<RaycastResult>();
-        //    EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-        //    return results.Count > 0;
-        //}
+        private bool IsPointerOverUIObject()
+        {
+            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+            eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+            return results.Count > 0;
+        }
         public void OnTouchInput1(InputAction.CallbackContext context)
         {
 
-          //  if (IsPointerOverUIObject()) return;
+            if (IsPointerOverUIObject()) return;
             if (touchCounts == 2 && !OnDrag)
             {
                 camRot += context.ReadValue<Vector2>() * currentMouseSens;
@@ -239,7 +239,7 @@ namespace Controller
         public void OnTouchInput2(InputAction.CallbackContext context)
         {
 
-           // if (IsPointerOverUIObject()) return;
+            if (IsPointerOverUIObject()) return;
             if (!isMoving) return;
             if (touchCounts < 2) return;
             if (!OnDrag) return;
@@ -247,7 +247,7 @@ namespace Controller
         }
         public void OnTouchInputNoMovment(InputAction.CallbackContext context)
         {
-           // if (IsPointerOverUIObject()) return;
+            if (IsPointerOverUIObject()) return;
             if (touchCounts > 0) return; // 2 fingers   
             if (context.started && !isMoving)
             {
