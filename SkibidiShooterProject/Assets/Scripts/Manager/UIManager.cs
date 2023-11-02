@@ -45,13 +45,13 @@ namespace Manager
         IEnumerator nextLe()
         {
             yield return new WaitForSeconds(3f);
-            NextLevel();
+           LevelManager.Instance.OpenRandomLevel();
         }
 
-        private void NextLevel()
-        {
-            SceneManager.LoadScene(0);
-        }
+        //private void NextLevel()
+        //{
+        //    SceneManager.LoadScene(0);
+        //}
 
     }
 }

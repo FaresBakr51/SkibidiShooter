@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using Controller;
 using SoundManage;
+using System.Net;
 
 namespace Manager
 {
@@ -174,31 +175,10 @@ namespace Manager
             UIManager.Instance.UpdateEnimesTxt(currentEnimesCount);
             for (int i =0;i< currentEnimesCount;i++)
             {
-                Transform randPoint = GetRandomFromList(enimeySpawnPoints);
-                if (IsSpawnPointClear(randPoint,enemyLayer))
-                {
-                    GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position, randPoint.rotation);
-                }
-                else
-                {
-                    //not clear spawn little far away
-                    randPoint = GetRandomFromList(enimeySpawnPoints);
-                    if (IsSpawnPointClear(randPoint,enemyLayer))//second try
-                    {
-                        Debug.Log("Spawn Try");
-                        GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position, randPoint.rotation);
-                    }
-                    else
-                    {
-                        //second try faield spawn little away
-                        Debug.Log("Second try failed ! Spawn Away a little");
-                        GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position + new Vector3(6f, 0, 0.5f), randPoint.rotation);
-                    }
-                   
+                SpawnEnemeyCleardAsPoissble();
 
-                }
-              
-                
+
+
             }
 
             if (LevelManager.Instance.GetBoss())
@@ -209,7 +189,24 @@ namespace Manager
          
         }
 
-    
+       private GameObject SpawnEnemeyCleardAsPoissble()
+        {
+            for (int i =0;i< enimeySpawnPoints.Count;)
+            {
+                if (IsSpawnPointClear(enimeySpawnPoints[i], enemyLayer))
+                {
+                    return Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), enimeySpawnPoints[i].position, enimeySpawnPoints[i].rotation);
+                }
+                else
+                {
+                    i++;
+                }
+            }
+            Debug.Log("All points not cleared Picking random One  ! ");
+            Transform randPoint = GetRandomFromList(enimeySpawnPoints);
+            return Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position + new Vector3(6f, 0, 0.5f), randPoint.rotation);
+
+        }
         #endregion
         #region FinishEvents
         private void UpdateHud(string cond)
