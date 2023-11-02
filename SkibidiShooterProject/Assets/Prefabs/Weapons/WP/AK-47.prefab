@@ -136,10 +136,8 @@ MonoBehaviour:
   shotPoint: {fileID: 6609988669405366256}
   damage: 15
   fireRate: 0.2
-  hitableLayer:
-    serializedVersion: 2
-    m_Bits: 8
   weaponType: 1
+  castDistance: 100
   currentBullets: 30
   maxbulletsCapacity: 30
   maxweaponCapacity: 150

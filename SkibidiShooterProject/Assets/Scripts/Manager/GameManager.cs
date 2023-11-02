@@ -4,6 +4,7 @@ using Patterns;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using Controller;
+using SoundManage;
 
 namespace Manager
 {
@@ -16,7 +17,9 @@ namespace Manager
 
         [Header("GameRules")]
         [SerializeField] private float gameTimer;
-
+        [Header("Sounds")]
+        [SerializeField] private AudioSource source;
+        private SoundManagment soundManagment;
 
         //[Header("UI")]
         //[SerializeField] private Text timerText;
@@ -30,6 +33,7 @@ namespace Manager
 
         [SerializeField] private List<Transform> playerSpawnPoint = new List<Transform>();
         [SerializeField] private List<Transform> enimeySpawnPoints = new List<Transform>();
+        [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private int currentEnimesCount;
 
         [Header("Events")]
@@ -59,7 +63,7 @@ namespace Manager
         private void Start()
         {
 
-
+            soundManagment = GetComponent<SoundManagment>();
             int rand = Random.Range(0, gameWeapons.Count);
             GameObject randWeapon = Instantiate(gameWeapons[rand], weaponTransformPoints[Random.Range(0, weaponTransformPoints.Count)].position, gameWeapons[rand].transform.rotation);
             currentEnimesCount = LevelManager.Instance.GetEnemiesCount;
@@ -96,9 +100,19 @@ namespace Manager
                     gameState = GameState.GS_Finished;
                 }
             }
+        
        
         }
-
+        private void OnDrawGizmos()
+        {
+            foreach(Transform spawnpoint in enimeySpawnPoints)
+            {
+                Gizmos.DrawSphere(spawnpoint.position, 2);
+                Gizmos.color = Color.yellow;
+            }
+           
+          
+        }
 
         private void HandleTimer()
         {
@@ -161,8 +175,32 @@ namespace Manager
             for (int i =0;i< currentEnimesCount;i++)
             {
                 Transform randPoint = GetRandomFromList(enimeySpawnPoints);
-                GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position, randPoint.rotation);
+                if (IsSpawnPointClear(randPoint,enemyLayer))
+                {
+                    GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position, randPoint.rotation);
+                }
+                else
+                {
+                    //not clear spawn little far away
+                    randPoint = GetRandomFromList(enimeySpawnPoints);
+                    if (IsSpawnPointClear(randPoint,enemyLayer))//second try
+                    {
+                        Debug.Log("Spawn Try");
+                        GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position, randPoint.rotation);
+                    }
+                    else
+                    {
+                        //second try faield spawn little away
+                        Debug.Log("Second try failed ! Spawn Away a little");
+                        GameObject enemy = Instantiate(GetRandomFromList(GameGlobalData.Instance.EnemiesPrefab), randPoint.position + new Vector3(6f, 0, 0.5f), randPoint.rotation);
+                    }
+                   
+
+                }
+              
+                
             }
+
             if (LevelManager.Instance.GetBoss())
             {
                 Transform randPoint = GetRandomFromList(enimeySpawnPoints);
@@ -171,6 +209,7 @@ namespace Manager
          
         }
 
+    
         #endregion
         #region FinishEvents
         private void UpdateHud(string cond)
@@ -180,9 +219,15 @@ namespace Manager
 
         private void UpdateLeveL(string cond)
         {
+            
             if(cond == "win")
             {
+                soundManagment.PlayOnShot(source, "win");
                 LevelManager.Instance.UpdateLevel();
+            }
+            else
+            {
+                soundManagment.PlayOnShot(source, "lose");
             }
         }
         #endregion
@@ -191,6 +236,15 @@ namespace Manager
         {
             int rand = Random.Range(0,list.Count);
             return list[rand];
+        }
+        static bool IsSpawnPointClear(Transform transform, LayerMask mask)
+        {
+            if (Physics.CheckSphere(transform.position,2, mask))
+            {
+                Debug.Log("SPAWN POINT NOT clear");
+                return false;
+            }
+            return true;
         }
 
     }

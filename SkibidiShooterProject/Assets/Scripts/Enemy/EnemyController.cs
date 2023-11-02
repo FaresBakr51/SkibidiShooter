@@ -1,4 +1,6 @@
+using Controller;
 using Manager;
+using SoundManage;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,8 +28,13 @@ public class EnemyController : MonoBehaviour,IHitable
     [SerializeField] private Slider healthScroll;
     private bool dead = false;
 
+    [Header("Sounds")]
+    [SerializeField] private AudioSource source;
+    private SoundManagment SoundManagment;
+
     void Start()
     {
+        SoundManagment = GetComponent<SoundManagment>();
         m_Agent = GetComponent<NavMeshAgent>();
         m_Animator = GetComponent<Animator>();
         if (!LevelManager.Instance) return;
@@ -43,7 +50,7 @@ public class EnemyController : MonoBehaviour,IHitable
         {
             if (health <= 0 && !dead)
             {
-                if (GameManager.Instance && GameManager.Instance.GetLeftEnimes() > 0)
+                if (GameManager.Instance && GameManager.Instance.GetLeftEnimes() > 0 && !isBoss) //boss not counted
                 {
                     GameManager.Instance.EnemeyDied();
                 }
@@ -57,6 +64,7 @@ public class EnemyController : MonoBehaviour,IHitable
             }
             else
             {
+                
                 ChasePlayer();
             }
         }
@@ -91,7 +99,18 @@ public class EnemyController : MonoBehaviour,IHitable
             UpdateTarget(GameManager.Instance.CurrentPlayer.gameObject);
           
         }
-        if (IsTargetClose() && canAttack)
+        if( m_target ==null && !IsRealPlayerClose())
+        {
+            m_target = GameManager.Instance.GetRandomFakePlayer();
+        }
+        if(m_target == null && GameManager.Instance.GetRandomFakePlayer()==null)
+        {
+            UpdateTarget(GameManager.Instance.CurrentPlayer.gameObject);
+        }else if(m_target == null && GameManager.Instance.GetRandomFakePlayer() == null && GameManager.Instance.CurrentPlayer.Health <= 0)
+        {
+            m_target = null;
+        }
+        if (m_target&&IsTargetClose() && canAttack)
         {
             LookAtTarget();
             Attack();
@@ -111,7 +130,7 @@ public class EnemyController : MonoBehaviour,IHitable
     }
     public void ApplyDamage()
     {
-      
+        if (!m_target) return;
         if (!IsTargetClose()) return;
         var damagableobj =  m_target.TryGetComponent(out IHitable hitable);
         if (hitable !=null && hitable.Health >0)
@@ -123,26 +142,34 @@ public class EnemyController : MonoBehaviour,IHitable
 
             UpdateStateAnimation(4);
         }
+        if (SoundManagment && m_target.GetComponent<FPSController>())
+        {
+            SoundManagment.PlayOnShot(source, "attack");
+        }
     }
     public void CanAttack()
     {
         canAttack = true;
     }
-    bool IsTargetClose()
-    {
-        return DistanceWithPlayer() <= m_Agent.stoppingDistance;
-    }
+ 
     bool IsRealPlayerClose()
     {
+      
         return (GameManager.Instance.CurrentPlayer.transform.position - transform.position).magnitude <= attackDistance;
     }
     private void LookAtTarget()
     {
+        if (!m_target) return;
         transform.LookAt(m_target.transform, Vector3.up);
     }
-    float DistanceWithPlayer()
+    float DistanceWithTarget()
     {
+       
         return (m_target.transform.position - transform.position).magnitude;
+    }
+    bool IsTargetClose()
+    {
+        return DistanceWithTarget() <= m_Agent.stoppingDistance;
     }
     private void UpdateStateAnimation(int val)
     {

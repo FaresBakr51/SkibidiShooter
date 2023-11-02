@@ -36,6 +36,11 @@ namespace SoundManage
                 source.PlayOneShot(source.clip);
             }
         }
+        public void PlayOnShot(AudioSource source, AudioClip clip)
+        {
+           
+            source.PlayOneShot(clip);
+        }
     }
     
     

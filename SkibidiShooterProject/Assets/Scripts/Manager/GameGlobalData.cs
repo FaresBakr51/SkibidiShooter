@@ -5,7 +5,6 @@ using UnityEngine;
 namespace Manager
 {
 
-    [CreateAssetMenu(fileName = "GameGlobalData", menuName = "GameGlobalData")]
     public class GameGlobalData : Singelton<GameGlobalData>
     {
 
@@ -13,10 +12,6 @@ namespace Manager
 
 
 
-
-        private static GameGlobalData instance;
-        private static bool isCaching = false;
-        public static bool isDataCached = false;
         [Header("GameObjects")]
         [SerializeField] private List<GameObject> enemyPrefabs = new List<GameObject>();
         [SerializeField] private List<GameObject> enemybossPrefabs = new List<GameObject>();

@@ -42,6 +42,8 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
 
     private Vector2 input = Vector2.zero;
 
+  [SerializeField] public FPSController controller;
+
     protected virtual void Start()
     {
         HandleRange = handleRange;
@@ -57,17 +59,22 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         handle.anchorMax = center;
         handle.pivot = center;
         handle.anchoredPosition = Vector2.zero;
+        controller = FindAnyObjectByType<FPSController>();
     }
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
         Debug.Log("Pointer down");
-        FPSController controller = FindObjectOfType<FPSController>();
-        if (controller && controller.TouchCounts() <2 )//only move cam when the joystick is the first finger
+        if (controller == null)
+        {
+            controller = FindAnyObjectByType<FPSController>();
+
+        }
+        if (controller && controller.GetTouchCounts() <2 )//only move cam when the joystick is the first finger
         {
            // controller.actiontest.Disable();
-            controller.touchestxt.text = "Disabled";
-            controller.touchCounts = 1;
+          
+            controller.TouchCounts = 1;
             controller.OnDrag = false;
 
         }
@@ -77,15 +84,20 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
     public void OnDrag(PointerEventData eventData)
     {
       
-        Debug.Log(" Drag ");
+        //Debug.Log(" Drag ");
         cam = null;
         if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
             cam = canvas.worldCamera;
-        FPSController controller = FindObjectOfType<FPSController>();
-        if (controller && controller.TouchCounts() == 1 && controller.touchCounts !=1)//check while dragging if its the joystick is the only finger
+        // controller = FindObjectOfType<FPSController>();
+        if (controller == null)
         {
-            controller.touchestxt.text = controller.OnDrag.ToString();
-            controller.touchCounts = 1;
+            controller = FindAnyObjectByType<FPSController>();
+
+        }
+        if (controller && controller.GetTouchCounts() == 1 && controller.TouchCounts != 1)//check while dragging if its the joystick is the only finger
+        {
+           
+            controller.TouchCounts = 1;
             controller.OnDrag = true;
 
         }
@@ -157,10 +169,15 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
     {
         input = Vector2.zero;
         handle.anchoredPosition = Vector2.zero;
-        FPSController controller = FindObjectOfType<FPSController>();
+
+        if (controller == null)
+        {
+            controller = FindAnyObjectByType<FPSController>();
+
+        }
         if (controller)
         {
-            controller.touchCounts = 0;
+            controller.TouchCounts = 0;
             controller.OnDrag = false;
         }
     }

@@ -1,5 +1,6 @@
 using Patterns;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Manager
 {
@@ -63,10 +64,17 @@ namespace Manager
             PlayerPrefs.SetInt("currnetmaxhealth", currentEnemymaxHealth);
             PlayerPrefs.SetInt("currentEnemiesCount", currentEnemiesCount);
             PlayerPrefs.SetInt("currentbosslevel", lastbosslevel);
+            PlayerPrefs.Save();
         }
         private void OnApplicationQuit()
         {
             SaveLevelData();
+        }
+
+        public void OpenRandomLevel()
+        {
+            int rand = Random.Range(1, 3);
+            SceneManager.LoadScene(rand);
         }
     }
 }

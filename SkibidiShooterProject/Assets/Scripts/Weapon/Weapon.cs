@@ -20,8 +20,8 @@ namespace Weapons
         [SerializeField] private Transform shotPoint;
         [SerializeField] private float damage;
         [SerializeField] private float fireRate;
-        [SerializeField] private LayerMask hitableLayer;
         [SerializeField] private EWeaponType weaponType;
+        [SerializeField] private int castDistance;
         private float currentRate;
         [Header("Bullets")]
         [SerializeField] private int currentBullets;
@@ -60,7 +60,7 @@ namespace Weapons
             {
                 currentRate = Time.time + fireRate;
                 RayCast();
-            }else if(currentBullets <= 0)
+            }else if(currentBullets <= 0 && maxweaponCapacity > 0)
             {
                 Reload();
             }
@@ -73,7 +73,7 @@ namespace Weapons
         {
          
             RaycastHit hit;
-            if (Physics.Raycast(shotPoint.position, myController.transform.forward, out hit, 1000))
+            if (Physics.Raycast(shotPoint.position, myController.transform.forward, out hit, castDistance))
             {
                 if (hit.collider != null && hit.collider.TryGetComponent(out IHitable damagableobj))
                 {
@@ -99,7 +99,7 @@ namespace Weapons
         }
         public void UpdateBullets()
         {
-            if (myController && maxweaponCapacity - maxbulletsCapacity >= 0)//ex max cap = 100 // bulletscapacity = 20 // 100-20 >0 ? true reload ? /// 20 // max 20 ? 20
+            if (myController && maxweaponCapacity >= maxbulletsCapacity )//ex max cap = 100 // bulletscapacity = 20 // 100-20 >0 ? true reload ? /// 20 // max 20 ? 20
             {
                 if (currentBullets > 0)// left ammo = 5 ?
                 {
@@ -112,11 +112,17 @@ namespace Weapons
                     currentBullets += maxbulletsCapacity;
                     maxweaponCapacity -= maxbulletsCapacity;
                 }
-                myController.UpdateBulletTxt(currentBullets,maxweaponCapacity);
-                myController.UpdateAnimationDependOnWeapontype(weaponType);
+              
 
                 Debug.Log("Update bullets");
+            }else if(myController &&  maxweaponCapacity > 0 && maxweaponCapacity < maxbulletsCapacity)
+            {
+                currentBullets += maxbulletsCapacity;
+                maxweaponCapacity =0;
             }
+
+            myController.UpdateBulletTxt(currentBullets, maxweaponCapacity);
+            myController.UpdateAnimationDependOnWeapontype(weaponType);
         }
       public void SetController(FPSController controller)
         {

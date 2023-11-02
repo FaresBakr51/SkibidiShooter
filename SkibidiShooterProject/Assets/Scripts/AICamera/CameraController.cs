@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 namespace AICam
 {
-    public class CameraController : MonoBehaviour
+    public class CameraController : MonoBehaviour,IHitable
     {
         [Header("Behave")]
         private NavMeshAgent m_Agent;
@@ -16,6 +16,7 @@ namespace AICam
         [Header("HEALTH")]
         [SerializeField] private float health;
 
+        public float Health => health;
 
         private void Start()
         {
@@ -36,6 +37,10 @@ namespace AICam
                     m_Agent.isStopped = true;
                     UpdateANimation(1);
                 }
+            }
+            if(health <= 0)
+            {
+                Destroy(gameObject);
             }
         }
         private void CheckNextPoint()
@@ -63,6 +68,11 @@ namespace AICam
        private void UpdateANimation(int val)
         {
             m_Animator.SetInteger("State", val);
+        }
+
+        public void TakeHit(float damage)
+        {
+            health -= damage;
         }
     }
 }

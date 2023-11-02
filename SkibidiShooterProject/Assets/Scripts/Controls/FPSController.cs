@@ -1,5 +1,7 @@
 using Combat;
 using Manager;
+using SoundManage;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,40 +34,36 @@ namespace Controller
         [Header("UI")]
         [SerializeField] private Text healthTxt;
         [SerializeField] private Text bulletTxt;
-        [SerializeField] public Text touchestxt;
-        public InputAction actiontest;
+
+
+        [Header("Sounds")]
+        [SerializeField] private AudioSource soundsource;
+        private SoundManagment soundManage;
+        private bool canPlay;
         /**
          * movment floats
          /**/
         private bool isMoving => joystick.Vertical !=0 || joystick.Horizontal != 0;
         private Vector2 camRot;
-        public int touchCounts = 0;
-       public bool OnDrag = false;
-      
+        [Header("Inputs")]
+        [SerializeField] int touchCounts = 0;
+        [SerializeField] bool onDrag = false;
+         public int TouchCounts { get { return touchCounts; } set { touchCounts = value; } }
+        public bool OnDrag { get { return onDrag; } set { onDrag = value; } }
+
+
+
         private Vector3 velocity;
         private float gravity = -9.8f;
         public float Health => health;
 
         private void Start()
         {
-            actiontest.Enable();
+
             currentMouseSens = mouseSens;
              characterController = GetComponent<CharacterController>();
             playerCombat = GetComponent<PlayerCombat>();
-            actiontest.performed += x =>
-            {
-
-            
-                if (touchCounts == 2&&!OnDrag)
-                {
-                    camRot += x.ReadValue<Vector2>() * currentMouseSens;
-                    touchestxt.text = "Performed";
-
-                }
-                
-
-            };
- 
+            soundManage = GetComponent<SoundManagment>();
         }
         private void Update()
         {
@@ -87,9 +85,17 @@ namespace Controller
             Move(joystick.Horizontal, joystick.Vertical, speed);
             ControlRotation(camRot);
             HandleGravity(isGrounded);
-     
+            if (isMoving)
+            {
+                HandleRunSounds();
+            }
+            else
+            {
+                canPlay = true;
+                soundsource.Stop();
+            }
         }
-        public int TouchCounts()
+        public int GetTouchCounts()
         {
             return Input.touchCount;
         }
@@ -99,12 +105,13 @@ namespace Controller
         {
             Vector3 direction = transform.forward * verticalAxis+ transform.right * horizontalAx;
             characterController.Move(direction * Time.deltaTime * speed);
+           
         }
 
         private void ControlRotation(Vector2 rotvector)
         {
           //  if (!canRotate) return;
-            Debug.Log("Rotate");
+          //  Debug.Log("Rotate");
            transform.rotation = Quaternion.Euler(-rotvector.y, rotvector.x, 0);
    
         }
@@ -208,18 +215,31 @@ namespace Controller
             bulletTxt.text = current +" / " + max.ToString();
         }
         #endregion
-        private bool IsPointerOverUIObject()
-        {
-            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-            eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-            return results.Count > 0;
-        }
-        public void OnTouchInput(InputAction.CallbackContext context)
+
+        #region Inputs
+        //private bool IsPointerOverUIObject()
+        //{
+        //    PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        //    eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        //    List<RaycastResult> results = new List<RaycastResult>();
+        //    EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        //    return results.Count > 0;
+        //}
+        public void OnTouchInput1(InputAction.CallbackContext context)
         {
 
-            if (IsPointerOverUIObject()) return;
+          //  if (IsPointerOverUIObject()) return;
+            if (touchCounts == 2 && !OnDrag)
+            {
+                camRot += context.ReadValue<Vector2>() * currentMouseSens;
+               
+
+            }
+        }
+        public void OnTouchInput2(InputAction.CallbackContext context)
+        {
+
+           // if (IsPointerOverUIObject()) return;
             if (!isMoving) return;
             if (touchCounts < 2) return;
             if (!OnDrag) return;
@@ -227,7 +247,7 @@ namespace Controller
         }
         public void OnTouchInputNoMovment(InputAction.CallbackContext context)
         {
-            if (IsPointerOverUIObject()) return;
+           // if (IsPointerOverUIObject()) return;
             if (touchCounts > 0) return; // 2 fingers   
             if (context.started && !isMoving)
             {
@@ -236,5 +256,23 @@ namespace Controller
 
 
         }
+        #endregion
+        #region Sounds
+        private void HandleRunSounds()
+        {
+            if (canPlay)
+            {
+                AudioClip run = soundManage.RequestSound("run");
+                soundManage.PlayOnShot(soundsource,run);
+                StartCoroutine(CanRunSound(run.length));
+                canPlay = false;
+            }
+        }
+        IEnumerator CanRunSound(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            canPlay = true;
+        }
+        #endregion
     }
 }
